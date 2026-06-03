@@ -1,0 +1,26 @@
+# agentcast
+
+agentcast is the sub-agents component of the Energy meta-harness stack.
+
+## Purpose
+
+Owns three things:
+1. A curated library of reusable Claude Code sub-agent persona files (.md)
+2. A validator that enforces the flat .claude/agents/ path standard
+3. A static eval that scores persona quality against a 5-dimension rubric
+
+## The Flat-Path Standard
+
+Claude Code resolves sub-agents from `.claude/agents/<name>.md` (flat, no nesting).
+The anti-pattern `agents/agents/<name>.md` is rejected by the validator.
+
+## Key Files
+
+- `library/` — persona .md files (researcher, code-reviewer, test-writer, security-reviewer, architect, qa-tester)
+- `validator/validate.mjs` — CLI: `node validator/validate.mjs --library`
+- `eval/eval.mjs` — CLI: `node eval/eval.mjs --library`
+- `.claude/agents/persona-auditor.md` — this repo's own sub-agent
+
+## Provisional Status
+
+Repo name "agentcast" is provisional — awaiting chairman confirmation or rename.
