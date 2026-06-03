@@ -1,0 +1,77 @@
+{
+  "name": "agentcast",
+  "version": "0.1.0",
+  "description": "Reusable agent personas + the flat .claude/agents standard",
+  "type": "persona-library",
+  "personas": [
+    {
+      "id": "researcher",
+      "file": "library/researcher.md",
+      "role": "Multi-source web + codebase research",
+      "model": "sonnet"
+    },
+    {
+      "id": "code-reviewer",
+      "file": "library/code-reviewer.md",
+      "role": "TypeScript/security/arch code review",
+      "model": "sonnet"
+    },
+    {
+      "id": "test-writer",
+      "file": "library/test-writer.md",
+      "role": "Vitest unit + integration test generation",
+      "model": "sonnet"
+    },
+    {
+      "id": "security-reviewer",
+      "file": "library/security-reviewer.md",
+      "role": "Injection / auth / CORS / secrets audit",
+      "model": "sonnet"
+    },
+    {
+      "id": "architect",
+      "file": "library/architect.md",
+      "role": "Trade-off analysis + system design",
+      "model": "sonnet"
+    },
+    {
+      "id": "qa-tester",
+      "file": "library/qa-tester.md",
+      "role": "User-perspective E2E QA + bug reports",
+      "model": "sonnet"
+    }
+  ],
+  "skills": [
+    {
+      "id": "persona-validate",
+      "file": ".claude/skills/persona-validate/SKILL.md",
+      "trigger": "validate persona|validate agent|check persona"
+    },
+    {
+      "id": "persona-scaffold",
+      "file": ".claude/skills/persona-scaffold/SKILL.md",
+      "trigger": "scaffold persona|create persona|new persona"
+    }
+  ],
+  "tools": [
+    {
+      "id": "validate",
+      "command": "node validator/validate.mjs",
+      "description": "Flat-path + frontmatter validator"
+    },
+    {
+      "id": "eval",
+      "command": "node eval/eval.mjs",
+      "description": "Rubric quality scorer (0-10, threshold 7)"
+    },
+    {
+      "id": "dispatch",
+      "command": "node dispatch/dispatch.mjs",
+      "description": "Persona router — picks the best persona for a task description"
+    }
+  ],
+  "standard": "flat-path-v1",
+  "flat_path": ".claude/agents/<name>.md",
+  "anti_pattern": "agents/agents/<name>.md",
+  "homepage": "https://github.com/naman10parikh/agentcast"
+}

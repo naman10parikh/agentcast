@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/agentcast/observability/run-log.mjs \"PostToolUse:Bash\" \"$CLAUDE_TOOL_INPUT_COMMAND\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/agentcast/observability/run-log.mjs \"PreToolUse:Write\" \"$CLAUDE_TOOL_INPUT_FILE_PATH\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node *)",
+      "Bash(node ~/agentcast/validator/validate.mjs *)",
+      "Bash(node ~/agentcast/eval/eval.mjs *)",
+      "Bash(node ~/agentcast/dispatch/dispatch.mjs *)",
+      "Bash(node ~/agentcast/observability/run-log.mjs *)"
+    ]
+  }
+}
