@@ -4,3 +4,5 @@ observability/*.jsonl
 logs/
 *.log
 dist/
+
+.env
