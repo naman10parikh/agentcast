@@ -1,0 +1,36 @@
+{
+  "name": "Agentcast",
+  "description": "A library of reusable sub-agent personas, validated and scored.",
+  "url": "https://github.com/naman10parikh/agentcast",
+  "version": "0.1.0",
+  "provider": {
+    "organization": "Naman Parikh",
+    "url": "https://github.com/naman10parikh"
+  },
+  "capabilities": {
+    "streaming": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "persona-validate",
+      "name": "persona-validate",
+      "description": "Validate and score persona files before they ship, or as a pre-merge check on any .claude/agents/ folder."
+    },
+    {
+      "id": "persona-scaffold",
+      "name": "persona-scaffold",
+      "description": "Write a new persona for a role the library lacks, one that validates and scores at least 7."
+    },
+    {
+      "id": "persona-cast",
+      "name": "persona-cast",
+      "description": "Pick, trial, install and prove the right persona for a job, including one someone else wrote."
+    }
+  ]
+}

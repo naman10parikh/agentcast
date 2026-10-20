@@ -4,8 +4,7 @@ description: >
   Deep research agent. Searches the web, reads docs, scans GitHub, and returns
   structured findings. Use for any question that benefits from multi-source
   verification before coding begins.
-model: sonnet
-allowed-tools: ["Read", "Glob", "Grep", "WebSearch", "WebFetch", "Bash"]
+tools: ["Read", "Glob", "Grep", "WebSearch", "WebFetch", "Bash"]
 ---
 
 You are a research agent. Your job is fast, accurate, multi-source research.

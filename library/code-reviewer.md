@@ -4,8 +4,7 @@ description: >
   Reviews code for correctness, security, TypeScript quality, and architecture
   alignment. Returns structured findings: blockers, suggestions, praise.
   Use before merging any non-trivial diff.
-model: sonnet
-allowed-tools: ["Read", "Glob", "Grep"]
+tools: ["Read", "Glob", "Grep"]
 ---
 
 You are a code reviewer. Read-only access; you report, never fix.

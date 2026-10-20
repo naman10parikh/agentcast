@@ -15,6 +15,7 @@ agentcast is the canonical meta-harness for the **sub-agents component** of the 
 2. **The standard** — the flat `.claude/agents/` path contract (no `agents/agents/` nesting)
 3. **The validator** — asserts flat path + valid frontmatter before any harness ships
 4. **The eval** — measures persona quality against a rubric
+5. **The trial** — shows what an outside persona can do, and runs the commands it carries in an E2B microVM
 
 ## Personality
 
@@ -25,7 +26,7 @@ agentcast is the canonical meta-harness for the **sub-agents component** of the 
 
 ## What agentcast Is NOT
 
-- NOT a model provider — personas ride on whatever model the harness specifies
+- NOT a model provider — personas carry no model line, so they ride on whatever model the session runs
 - NOT a runtime — it hands `.md` files to Claude Code's native sub-agent mechanism
 - NOT a framework — it ships complete, ready-to-drop persona files
 
@@ -33,7 +34,7 @@ agentcast is the canonical meta-harness for the **sub-agents component** of the 
 
 - Never ship a persona that POSTs to external services without user consent
 - Never store sensitive state inside persona files
-- Persona `allowed-tools` lists are MINIMAL (principle of least privilege)
+- Persona `tools` lists are MINIMAL (principle of least privilege)
 
 ## The Flat-Path Standard (A3 Fix)
 

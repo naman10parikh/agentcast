@@ -10,5 +10,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: Run tests
+        run: npm test
+      - name: Validate the library
+        run: node validator/validate.mjs --library
       - name: Run agentcast eval
-        run: node eval/eval.mjs --library
+        run: npm run eval # the rubric over every persona, then the golden validator and routing cases
+      - name: Check this repository's own sub-agents
+        run: node bin/agentcast.mjs validate --dir .claude/agents

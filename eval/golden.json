@@ -1,0 +1,32 @@
+{
+  "about": "Golden cases agentcast must keep getting right. Validator cases follow Claude Code's sub-agent docs (read 2026-10-19); routing cases are plain-language tasks and the persona that should take them.",
+  "routing_threshold": 0.9,
+  "validator": [
+    { "case": "minimal valid persona", "path": ".claude/agents/a.md", "content": "---\nname: a\ndescription: d\n---\nx", "valid": true },
+    { "case": "description missing", "path": ".claude/agents/a.md", "content": "---\nname: a\n---\nx", "valid": false, "error": "missing required key 'description'" },
+    { "case": "allowed-tools instead of tools", "path": ".claude/agents/a.md", "content": "---\nname: a\ndescription: d\nallowed-tools: Read\n---\nx", "valid": false, "error": "allowed-tools" },
+    { "case": "tools as a YAML list", "path": ".claude/agents/a.md", "content": "---\nname: a\ndescription: d\ntools:\n  - Read\n  - Grep\n---\nx", "valid": true },
+    { "case": "model left out", "path": ".claude/agents/a.md", "content": "---\nname: a\ndescription: d\ntools: Read\n---\nx", "valid": true },
+    { "case": "model inherit", "path": ".claude/agents/a.md", "content": "---\nname: a\ndescription: d\nmodel: inherit\n---\nx", "valid": true },
+    { "case": "unknown model", "path": ".claude/agents/a.md", "content": "---\nname: a\ndescription: d\nmodel: gpt-4o\n---\nx", "valid": false, "error": "unrecognised model" },
+    { "case": "colon in name", "path": ".claude/agents/a.md", "content": "---\nname: my:agent\ndescription: d\n---\nx", "valid": false, "error": "invalid name" },
+    { "case": "bad permission mode", "path": ".claude/agents/a.md", "content": "---\nname: a\ndescription: d\npermissionMode: everything\n---\nx", "valid": false, "error": "permissionMode" },
+    { "case": "nested agents/agents", "path": "agents/agents/a.md", "content": "---\nname: a\ndescription: d\n---\nx", "valid": false, "error": "agents/agents" },
+    { "case": "outside .claude/agents", "path": "docs/a.md", "content": "---\nname: a\ndescription: d\n---\nx", "valid": false, "error": "not under '.claude/agents/'" },
+    { "case": "no frontmatter", "path": ".claude/agents/a.md", "content": "# just a heading", "valid": false, "error": "frontmatter delimiter" }
+  ],
+  "routing": [
+    { "task": "write vitest unit tests for the date parser", "expect": "test-writer" },
+    { "task": "add integration tests with mocks for the payment client", "expect": "test-writer" },
+    { "task": "audit the login endpoint for injection and auth bypass", "expect": "security-reviewer" },
+    { "task": "check this PR for leaked secrets and CORS mistakes", "expect": "security-reviewer" },
+    { "task": "review this TypeScript diff before I merge it", "expect": "code-reviewer" },
+    { "task": "refactor suggestions and naming feedback on this module", "expect": "code-reviewer" },
+    { "task": "compare two database schema designs and their trade-offs", "expect": "architect" },
+    { "task": "which approach scales better for the queue: polling versus webhooks", "expect": "architect" },
+    { "task": "research what libraries exist for PDF parsing", "expect": "researcher" },
+    { "task": "investigate how does the upstream SDK handle retries", "expect": "researcher" },
+    { "task": "test the signup flow end-to-end as a user and file bug reports", "expect": "qa-tester" },
+    { "task": "verify the production checkout is not broken after the deploy", "expect": "qa-tester" }
+  ]
+}

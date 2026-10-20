@@ -6,9 +6,9 @@
  * it is a static structural eval that runs in <1s and costs $0.
  *
  * Rubric (5 dimensions, each 0–2 points):
- *   1. Frontmatter completeness  — all 4 required keys present + non-empty
- *   2. Model appropriateness     — model matches task complexity
- *   3. Tool minimalism           — allowed-tools list is minimal (≤6 tools)
+ *   1. Frontmatter completeness  — name, description and a `tools` allowlist present + non-empty
+ *   2. Model left to the session — no `model` (or `inherit`) scores 2; a family alias 1; a pinned ID 0
+ *   3. Tool minimalism           — the `tools` list is minimal (≤3 best, ≤6 fine; none = every tool)
  *   4. Output contract           — file defines an explicit output format
  *   5. DO NOT MODIFY guard       — read-only personas say "DO NOT MODIFY"
  *
@@ -20,8 +20,9 @@
  *   node eval/eval.mjs --dir <path>       # eval all .md files in a dir
  */
 
-import { readFileSync, readdirSync, statSync } from "fs";
+import { readFileSync, readdirSync, realpathSync, statSync } from "fs";
 import { resolve, basename, dirname } from "path";
+import { fileURLToPath } from "url";
 
 const RED = "\x1b[31m";
 const GREEN = "\x1b[32m";
@@ -30,17 +31,16 @@ const CYAN = "\x1b[36m";
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
 
-const REQUIRED_KEYS = ["name", "description", "model", "allowed-tools"];
-const PASS_THRESHOLD = 7;
+const REQUIRED_KEYS = ["name", "description", "tools"];
+export const PASS_THRESHOLD = 7;
 
 // Tools that should NOT be in read-only personas
 const WRITE_TOOLS = ["Write", "Edit", "Bash", "MultiEdit"];
 
-// Models by tier
-const READ_ONLY_MODELS = ["haiku"]; // cheap, fast — good for research
-const COMPLEX_MODELS = ["opus"]; // expensive — only for architecture
+// Family aliases follow the session's model within their family; a full ID is pinned and never upgrades
+const MODEL_ALIASES = ["sonnet", "opus", "haiku", "fable"];
 
-function parseFrontmatter(content) {
+export function parseFrontmatter(content) {
   const lines = content.split("\n");
   if (lines[0].trim() !== "---") return null;
   const closeIdx = lines.slice(1).findIndex((l) => l.trim() === "---");
@@ -63,8 +63,12 @@ function parseFrontmatter(content) {
   return result;
 }
 
-function evalFile(filePath) {
-  const content = readFileSync(resolve(filePath), "utf8");
+export function evalFile(filePath) {
+  return evalContent(readFileSync(resolve(filePath), "utf8"));
+}
+
+/** Score persona text against the rubric. */
+export function evalContent(content) {
   const fm = parseFrontmatter(content);
   const scores = [];
   const notes = [];
@@ -87,30 +91,28 @@ function evalFile(filePath) {
     }
   }
 
-  // ── Dimension 2: Model appropriateness (0–2) ─────────────────────────────
+  // ── Dimension 2: Model left to the session (0–2) ─────────────────────────
   const model = fm?.model ?? "";
-  const tools = fm?.["allowed-tools"] ?? [];
-  const toolList = Array.isArray(tools) ? tools : [tools];
+  const tools = fm?.tools ?? [];
+  const toolList = (Array.isArray(tools) ? tools : String(tools).split(",")).map((t) => t.trim()).filter(Boolean);
 
-  const isReadOnly = !toolList.some((t) => WRITE_TOOLS.includes(t));
-  const usesOpus = COMPLEX_MODELS.some((m) => model.includes(m));
-  if (usesOpus && isReadOnly) {
-    scores.push(1);
-    notes.push("MODEL: opus on read-only task — consider sonnet to save budget");
-  } else if (model.includes("haiku") && !isReadOnly) {
-    scores.push(1);
-    notes.push("MODEL: haiku on write task — consider sonnet for better quality");
-  } else if (model) {
+  if (!model || model === "inherit") {
     scores.push(2);
-    notes.push(`MODEL: ${model} appropriate for task ✓`);
+    notes.push("MODEL: left to the session (upgrades with it) ✓");
+  } else if (MODEL_ALIASES.includes(model)) {
+    scores.push(1);
+    notes.push(`MODEL: '${model}' overrides the session's choice — leave it out unless the role needs it`);
   } else {
     scores.push(0);
-    notes.push("MODEL: missing");
+    notes.push(`MODEL: '${model}' is pinned and never upgrades — leave it out`);
   }
 
   // ── Dimension 3: Tool minimalism (0–2) ───────────────────────────────────
   const toolCount = toolList.length;
-  if (toolCount <= 3) {
+  if (toolCount === 0) {
+    scores.push(0);
+    notes.push("TOOLS: no 'tools' allowlist, so the persona inherits every tool — list only what it uses");
+  } else if (toolCount <= 3) {
     scores.push(2);
     notes.push(`TOOLS: minimal (${toolCount} tools) ✓`);
   } else if (toolCount <= 6) {
@@ -170,53 +172,57 @@ function collectMarkdownFiles(dir) {
 }
 
 // ─── CLI ──────────────────────────────────────────────────────────────────────
-const args = process.argv.slice(2);
-let files = [];
+/** Run the eval CLI with `args`; returns the exit code. */
+export function main(args = process.argv.slice(2)) {
+  let files = [];
 
-if (args.includes("--library")) {
-  const libDir = resolve(dirname(new URL(import.meta.url).pathname), "../library");
-  files = collectMarkdownFiles(libDir);
-} else if (args.includes("--file")) {
-  files = [args[args.indexOf("--file") + 1]];
-} else if (args.includes("--dir")) {
-  files = collectMarkdownFiles(args[args.indexOf("--dir") + 1]);
-} else {
-  console.error("Usage: node eval/eval.mjs [--library] [--file <path>] [--dir <path>]");
-  process.exit(1);
-}
-
-console.log(`\n${BOLD}agentcast eval${RESET} — rubric scoring (${files.length} file(s))\n`);
-console.log(`Passing threshold: ${PASS_THRESHOLD}/10\n`);
-
-let passed = 0;
-let failed = 0;
-const allScores = [];
-
-for (const f of files) {
-  const result = evalFile(f);
-  allScores.push(result.total);
-  const label = basename(f);
-  const colour = result.pass ? GREEN : RED;
-  const symbol = result.pass ? "✓" : "✗";
-  console.log(
-    `  ${colour}${symbol}${RESET} ${BOLD}${label}${RESET}  ${colour}${result.total}/${result.max}${RESET}`
-  );
-  for (const note of result.notes) {
-    const noteColour = note.includes("✓") ? "" : YELLOW;
-    console.log(`      ${noteColour}${note}${RESET}`);
+  if (args.includes("--library")) {
+    const libDir = resolve(dirname(fileURLToPath(import.meta.url)), "../library");
+    files = collectMarkdownFiles(libDir);
+  } else if (args.includes("--file")) {
+    files = [args[args.indexOf("--file") + 1]];
+  } else if (args.includes("--dir")) {
+    files = collectMarkdownFiles(args[args.indexOf("--dir") + 1]);
+  } else {
+    console.error("Usage: agentcast score [--library] [--file <path>] [--dir <path>]");
+    return 1;
   }
-  console.log();
-  if (result.pass) passed++;
-  else failed++;
+
+  console.log(`\n${BOLD}agentcast eval${RESET} — rubric scoring (${files.length} file(s))\n`);
+  console.log(`Passing threshold: ${PASS_THRESHOLD}/10\n`);
+
+  let passed = 0;
+  let failed = 0;
+  const allScores = [];
+
+  for (const f of files) {
+    const result = evalFile(f);
+    allScores.push(result.total);
+    const label = basename(f);
+    const colour = result.pass ? GREEN : RED;
+    const symbol = result.pass ? "✓" : "✗";
+    console.log(
+      `  ${colour}${symbol}${RESET} ${BOLD}${label}${RESET}  ${colour}${result.total}/${result.max}${RESET}`
+    );
+    for (const note of result.notes) {
+      const noteColour = note.includes("✓") ? "" : YELLOW;
+      console.log(`      ${noteColour}${note}${RESET}`);
+    }
+    console.log();
+    if (result.pass) passed++;
+    else failed++;
+  }
+
+  const avg = allScores.length
+    ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1)
+    : 0;
+
+  console.log(`─────────────────────────────────`);
+  console.log(`${BOLD}Results:${RESET} ${GREEN}${passed} pass${RESET} / ${RED}${failed} fail${RESET}  |  avg score ${CYAN}${avg}/10${RESET}\n`);
+
+  return failed > 0 ? 1 : 0;
 }
 
-const avg = allScores.length
-  ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1)
-  : 0;
-
-console.log(`─────────────────────────────────`);
-console.log(`${BOLD}Results:${RESET} ${GREEN}${passed} pass${RESET} / ${RED}${failed} fail${RESET}  |  avg score ${CYAN}${avg}/10${RESET}\n`);
-
-if (failed > 0) {
-  process.exit(1);
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
+  process.exit(main());
 }

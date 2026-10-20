@@ -1,26 +1,43 @@
 # agentcast
 
-agentcast is the sub-agents component of the Energy meta-harness stack.
+> A library of reusable sub-agent personas for Claude Code, validated and scored: install one in a step, check any persona against what Claude Code reads, route a task to the right one, and trial an outside persona in an E2B microVM.
 
-## Purpose
+## Start here
 
-Owns three things:
-1. A curated library of reusable Claude Code sub-agent persona files (.md)
-2. A validator that enforces the flat .claude/agents/ path standard
-3. A static eval that scores persona quality against a 5-dimension rubric
+- [AGENTS.md](AGENTS.md): what agentcast does, every tool and how to call it, what not to do
+- [README.md](README.md): overview, quick start, the library and the rules
+- [identity/SOUL.md](identity/SOUL.md): who agentcast is, what it owns, its boundaries
 
-## The Flat-Path Standard
+## Skills
 
-Claude Code resolves sub-agents from `.claude/agents/<name>.md` (flat, no nesting).
-The anti-pattern `agents/agents/<name>.md` is rejected by the validator.
+- [skills/persona-validate/SKILL.md](skills/persona-validate/SKILL.md): validate and score persona files before they ship
+- [skills/persona-scaffold/SKILL.md](skills/persona-scaffold/SKILL.md): write a new persona that passes the validator and scores 7 or more
+- [skills/persona-cast/SKILL.md](skills/persona-cast/SKILL.md): pick, trial, install and prove the right persona for a job
 
-## Key Files
+## MCP tools
 
-- `library/` — persona .md files (researcher, code-reviewer, test-writer, security-reviewer, architect, qa-tester)
-- `validator/validate.mjs` — CLI: `node validator/validate.mjs --library`
-- `eval/eval.mjs` — CLI: `node eval/eval.mjs --library`
-- `.claude/agents/persona-auditor.md` — this repo's own sub-agent
+- [mcp/server.mjs](mcp/server.mjs): `agentcast-mcp` with `persona_dispatch`, `persona_get`, `persona_validate` and `persona_score`
 
-## Provisional Status
+## The library
 
-Repo name "agentcast" is provisional — awaiting chairman confirmation or rename.
+- [library/researcher.md](library/researcher.md): multi-source web and codebase research
+- [library/code-reviewer.md](library/code-reviewer.md): correctness, security, TypeScript and architecture review
+- [library/test-writer.md](library/test-writer.md): unit and integration test generation
+- [library/security-reviewer.md](library/security-reviewer.md): injection, auth, CORS and secrets audit
+- [library/architect.md](library/architect.md): trade-offs and system design
+- [library/qa-tester.md](library/qa-tester.md): user-perspective end-to-end QA and bug reports
+
+## Code
+
+- [validator/validate.mjs](validator/validate.mjs): the checks, and `KNOWN_FIELDS`
+- [eval/eval.mjs](eval/eval.mjs): the 10-point rubric
+- [eval/golden.json](eval/golden.json): golden validator and routing cases
+- [dispatch/dispatch.mjs](dispatch/dispatch.mjs): task to persona routing
+- [lib/trial.mjs](lib/trial.mjs): what a persona can do, and its commands run in E2B
+
+## Optional
+
+- [identity/MEMORY.md](identity/MEMORY.md): what Claude Code reads in a sub-agent file, and the library
+- [identity/LEARNINGS.md](identity/LEARNINGS.md): corrections that became rules
+- [sandbox/persona-sandbox.md](sandbox/persona-sandbox.md): testing a persona in isolation
+- [dsip.json](dsip.json): the self-improvement contract

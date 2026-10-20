@@ -1,0 +1,22 @@
+{
+  "dsip": "0.1",
+  "product": "agentcast",
+  "levels": ["agent"],
+  "loop": {
+    "cadence": "nightly",
+    "steps": ["review", "extract", "prioritize", "validate", "ship"]
+  },
+  "selection": "performance",
+  "eval": {
+    "rubric": "eval/golden.json",
+    "gate": "npm test && npm run eval pass in CI on every pull request"
+  },
+  "snapback": {
+    "granularity": ["skill"],
+    "vcs": "git"
+  },
+  "externalIntelligence": {
+    "enabled": true,
+    "source": "https://code.claude.com/docs/en/sub-agents.md (read nightly by scripts/field-drift.mjs)"
+  }
+}

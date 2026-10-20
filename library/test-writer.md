@@ -4,8 +4,7 @@ description: >
   Writes unit and integration tests for a given file or feature. Produces
   Vitest-compatible test files with AAA structure, edge cases, and mocks.
   Use after a feature is implemented and before signaling .done.
-model: sonnet
-allowed-tools: ["Read", "Glob", "Grep", "Write", "Edit"]
+tools: ["Read", "Glob", "Grep", "Write", "Edit"]
 ---
 
 You are a test-writing agent. Your output is executable test code.

@@ -18,19 +18,32 @@ mkdir -p /tmp/agentcast-sandbox/.claude/agents
 
 ```bash
 # 1. Drop the persona under test into the sandbox agents dir
-cp ~/agentcast/library/<name>.md /tmp/agentcast-sandbox/.claude/agents/<name>.md
+cd /tmp/agentcast-sandbox
+npx -y -p github:naman10parikh/agentcast agentcast add <name>      # a library persona
+# or: cp ./my-persona.md .claude/agents/my-persona.md                 # your own
 
 # 2. Validate it (must pass)
-node ~/agentcast/validator/validate.mjs \
-  --file /tmp/agentcast-sandbox/.claude/agents/<name>.md
+npx -y -p github:naman10parikh/agentcast agentcast validate --file .claude/agents/<name>.md
 
-# 3. Eval it (must score ≥7)
-node ~/agentcast/eval/eval.mjs \
-  --file /tmp/agentcast-sandbox/.claude/agents/<name>.md
+# 3. Score it (must score ≥7)
+npx -y -p github:naman10parikh/agentcast agentcast score --file .claude/agents/<name>.md
 
 # 4. (Optional) Dispatch smoke test — does the persona get routed correctly?
-node ~/agentcast/dispatch/dispatch.mjs "<describe a task this persona should handle>"
+npx -y -p github:naman10parikh/agentcast agentcast dispatch "<describe a task this persona should handle>"
 ```
+
+## Run a Persona's Own Commands in a MicroVM
+
+A persona's frontmatter can carry `hooks` and inline `mcpServers`, which run shell commands. Before you install
+one you did not write, list them, then run them inside a fresh E2B Firecracker VM instead of on your machine:
+
+```bash
+npx -y -p github:naman10parikh/agentcast agentcast trial ./their-persona.md                 # list only
+npx -y -p github:naman10parikh/agentcast agentcast trial ./their-persona.md --sandbox=e2b   # needs E2B_API_KEY
+```
+
+The trial writes the persona into a project inside the VM, runs each command with a synthetic event on stdin,
+prints its exit code and first line of output, and kills the VM.
 
 ## Smoke Checklist
 
@@ -40,7 +53,7 @@ Before promoting a new persona from sandbox to `library/`:
 - [ ] Eval score ≥7/10
 - [ ] `dispatch.mjs` routes a representative task to this persona (not another)
 - [ ] Persona file is ≤100 lines
-- [ ] `allowed-tools` list contains only what the persona genuinely uses
+- [ ] `tools` list contains only what the persona genuinely uses (not `allowed-tools`, which Claude Code ignores here)
 - [ ] Read-only personas: `DO NOT MODIFY FILES` present in body
 - [ ] `## Output Format` section present and concrete
 
@@ -52,14 +65,14 @@ rm -rf /tmp/agentcast-sandbox
 
 ## CI Integration (optional)
 
-Add to `.github/workflows/ci.yml`:
+This repository's `.github/workflows/test.yml` runs these on every push and pull request:
 
 ```yaml
 - name: Validate agentcast library
   run: node validator/validate.mjs --library
 
-- name: Eval agentcast library
-  run: node eval/eval.mjs --library
+- name: Run agentcast eval
+  run: npm run eval
 ```
 
 Both must exit 0 for the PR to merge.

@@ -1,12 +1,8 @@
 {
   "mcpServers": {
     "agentcast": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["~/agentcast/mcp/server.mjs"],
-      "description": "agentcast MCP server — exposes validate and dispatch as MCP tools",
-      "disabled": true,
-      "note": "Enable once mcp/server.mjs is wired to a transport. Until then, use the CLI directly: node validator/validate.mjs --library"
+      "command": "npx",
+      "args": ["-y", "-p", "github:naman10parikh/agentcast", "agentcast-mcp"]
     }
   }
 }

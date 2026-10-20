@@ -1,8 +1,6 @@
 ---
 name: persona-scaffold
-trigger: "scaffold persona|create persona|new persona|add persona|generate agent persona"
-model: sonnet
-effort: low
+description: Write a new sub-agent persona for a role that passes agentcast's validator and scores at least 7 of 10. Use when a project needs an agent role the library lacks (for example data-analyst or doc-writer), or when adding a new persona to the library.
 ---
 
 # Skill: persona-scaffold
@@ -18,16 +16,14 @@ that passes the validator and scores ≥7/10 on the eval rubric.
 ## Steps
 
 1. **Identify role** — clarify: role name, task type (read-only vs write), complexity
-2. **Choose model tier**
-   - read-only + simple → `haiku`
-   - analysis / review → `sonnet`
-   - complex architecture reasoning → `sonnet` (not opus — budget)
-3. **Choose tools** — minimal; read-only personas: `["Read", "Glob", "Grep", "WebSearch"]`; write personas add `"Write"` or `"Edit"` only if genuinely needed
+2. **Leave the model out** — the persona then runs on the session's model and upgrades with it. Set
+   `model` only when the role truly needs a different one.
+3. **Choose tools** (the key is `tools`; Claude Code ignores `allowed-tools` in a sub-agent) — minimal; read-only personas: `["Read", "Glob", "Grep", "WebSearch"]`; write personas add `"Write"` or `"Edit"` only if genuinely needed
 4. **Write the persona file** using the template below
 5. **Run validate + eval** to confirm it passes
    ```bash
-   node ~/agentcast/validator/validate.mjs --file <path>
-   node ~/agentcast/eval/eval.mjs --file <path>
+   npx -y -p github:naman10parikh/agentcast agentcast validate --file <path>
+   npx -y -p github:naman10parikh/agentcast agentcast score --file <path>
    ```
 6. **If target is library** — move to `library/<name>.md` and update README table
 
@@ -38,8 +34,7 @@ that passes the validator and scores ≥7/10 on the eval rubric.
 name: <role-name>
 description: >
   One sentence: what this agent does and when to use it.
-model: sonnet
-allowed-tools: ["Read", "Glob", "Grep"]
+tools: Read, Glob, Grep
 ---
 
 You are a <role> agent. <One-line mission statement>.
@@ -68,6 +63,6 @@ You are a <role> agent. <One-line mission statement>.
 - ≤N tool calls per invocation
 ```
 
-## Output Format
+## Output
 
 Emit the complete persona file content, then the validate + eval results.

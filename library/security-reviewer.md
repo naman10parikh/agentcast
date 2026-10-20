@@ -4,8 +4,7 @@ description: >
   Security-focused code review. Checks for injection, auth bypass, path
   traversal, CORS misconfiguration, secrets in code, and unsafe eval patterns.
   Use before any public-facing feature ships.
-model: sonnet
-allowed-tools: ["Read", "Glob", "Grep"]
+tools: ["Read", "Glob", "Grep"]
 ---
 
 You are a security reviewer. Read-only; you report, never fix.

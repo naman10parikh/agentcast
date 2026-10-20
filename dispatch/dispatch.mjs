@@ -6,20 +6,19 @@
  * Uses keyword matching — zero LLM calls, zero external dependencies, <1ms.
  *
  * Usage:
- *   node dispatch/dispatch.mjs "review this TypeScript for security issues"
- *   node dispatch/dispatch.mjs --json "write unit tests for the auth module"
- *   node dispatch/dispatch.mjs --list
+ *   agentcast dispatch "review this TypeScript for security issues"
+ *   agentcast dispatch --json "write unit tests for the auth module"
+ *   agentcast dispatch --list
+ *   (or node dispatch/dispatch.mjs ... inside the repository)
  *
  * Exit codes:
  *   0  match found
  *   1  no match (prints fallback suggestion)
  */
 
-import { readFileSync } from "fs";
-import { resolve, dirname } from "path";
+import { realpathSync } from "fs";
 import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
@@ -33,7 +32,7 @@ const RESET = "\x1b[0m";
  * Keywords are matched case-insensitively against the task string.
  * First entry with the most keyword hits wins.
  */
-const PERSONAS = [
+export const PERSONAS = [
   {
     id: "security-reviewer",
     file: "library/security-reviewer.md",
@@ -100,7 +99,7 @@ const PERSONAS = [
  * Score a persona against a task description.
  * Returns { persona, hits } where hits is the count of matching keywords.
  */
-function score(persona, task) {
+export function score(persona, task) {
   const lower = task.toLowerCase();
   const hits = persona.keywords.filter((kw) => lower.includes(kw.toLowerCase())).length;
   return { persona, hits };
@@ -110,7 +109,7 @@ function score(persona, task) {
  * Route a task to the best-fit persona.
  * Returns the winning persona entry, or null if no hits.
  */
-function dispatch(task) {
+export function dispatch(task) {
   const scored = PERSONAS.map((p) => score(p, task)).sort((a, b) => b.hits - a.hits);
   const best = scored[0];
   if (best.hits === 0) return null;
@@ -118,65 +117,61 @@ function dispatch(task) {
 }
 
 // ─── CLI ──────────────────────────────────────────────────────────────────────
-const args = process.argv.slice(2);
+const ADD = "npx -y -p github:naman10parikh/agentcast agentcast add";
 
-if (args.includes("--list")) {
-  console.log(`\n${BOLD}agentcast dispatch${RESET} — available personas\n`);
-  for (const p of PERSONAS) {
-    console.log(`  ${CYAN}${p.id.padEnd(20)}${RESET} ${p.description}`);
+/** Run the dispatch CLI with `args`; returns the exit code. */
+export function main(args = process.argv.slice(2)) {
+  if (args.includes("--list")) {
+    console.log(`\n${BOLD}agentcast dispatch${RESET} — available personas\n`);
+    for (const p of PERSONAS) {
+      console.log(`  ${CYAN}${p.id.padEnd(20)}${RESET} ${p.description}`);
+    }
+    console.log();
+    return 0;
   }
-  console.log();
-  process.exit(0);
-}
 
-const jsonMode = args.includes("--json");
-const taskArgs = args.filter((a) => a !== "--json");
-const task = taskArgs.join(" ").trim();
+  const jsonMode = args.includes("--json");
+  const task = args.filter((a) => a !== "--json").join(" ").trim();
 
-if (!task) {
-  console.error(`Usage: node dispatch/dispatch.mjs [--json] [--list] "<task description>"`);
-  process.exit(1);
-}
+  if (!task) {
+    console.error(`Usage: agentcast dispatch [--json] [--list] "<task description>"`);
+    return 1;
+  }
 
-const match = dispatch(task);
+  const match = dispatch(task);
 
-if (!match) {
+  if (!match) {
+    if (jsonMode) {
+      process.stdout.write(JSON.stringify({ match: null, fallback: "researcher", add_command: `${ADD} researcher` }) + "\n");
+    } else {
+      console.log(
+        `${YELLOW}No strong match.${RESET} Falling back to ${BOLD}researcher${RESET} (general-purpose).`
+      );
+      console.log(`  Use: ${ADD} researcher\n`);
+    }
+    return 1;
+  }
+
   if (jsonMode) {
-    process.stdout.write(JSON.stringify({ match: null, fallback: "researcher" }) + "\n");
-  } else {
-    console.log(
-      `${YELLOW}No strong match.${RESET} Falling back to ${BOLD}researcher${RESET} (general-purpose).`
+    process.stdout.write(
+      JSON.stringify({
+        match: { id: match.id, file: match.file, description: match.description },
+        add_command: `${ADD} ${match.id}`,
+      }) + "\n"
     );
-    console.log(`  Use: cp ~/agentcast/library/researcher.md ./.claude/agents/researcher.md\n`);
+  } else {
+    console.log(`\n${BOLD}agentcast dispatch${RESET} — best match for: "${task}"\n`);
+    console.log(`  ${GREEN}${BOLD}${match.id}${RESET}`);
+    console.log(`  ${match.description}`);
+    console.log(`  File: ${match.file}`);
+    console.log();
+    console.log(`  Add it to this project's .claude/agents/:`);
+    console.log(`  ${CYAN}${ADD} ${match.id}${RESET}`);
+    console.log();
   }
-  process.exit(1);
+  return 0;
 }
 
-if (jsonMode) {
-  const libPath = resolve(__dirname, "..", match.file);
-  let content = "";
-  try { content = readFileSync(libPath, "utf8"); } catch {}
-  process.stdout.write(
-    JSON.stringify({
-      match: {
-        id: match.id,
-        file: match.file,
-        description: match.description,
-      },
-      drop_command: `cp ~/agentcast/${match.file} ./.claude/agents/${match.id}.md`,
-    }) + "\n"
-  );
-} else {
-  console.log(`\n${BOLD}agentcast dispatch${RESET} — best match for: "${task}"\n`);
-  console.log(`  ${GREEN}${BOLD}${match.id}${RESET}`);
-  console.log(`  ${match.description}`);
-  console.log(`  File: ${match.file}`);
-  console.log();
-  console.log(`  Drop into project:`);
-  console.log(
-    `  ${CYAN}cp ~/agentcast/${match.file} ./.claude/agents/${match.id}.md${RESET}`
-  );
-  console.log();
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
+  process.exit(main());
 }
-
-process.exit(0);

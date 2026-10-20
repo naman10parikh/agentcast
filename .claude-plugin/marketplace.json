@@ -1,0 +1,15 @@
+{
+  "name": "agentcast",
+  "owner": {
+    "name": "Naman Parikh",
+    "url": "https://github.com/naman10parikh"
+  },
+  "description": "Agentcast, the sub-agents employee: six reusable personas plus the tools that validate, score, route and trial any persona.",
+  "plugins": [
+    {
+      "name": "agentcast",
+      "source": "./",
+      "description": "A library of reusable sub-agent personas, validated and scored."
+    }
+  ]
+}

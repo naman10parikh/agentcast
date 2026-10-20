@@ -8,49 +8,54 @@
       "id": "researcher",
       "file": "library/researcher.md",
       "role": "Multi-source web + codebase research",
-      "model": "sonnet"
+      "model": "session"
     },
     {
       "id": "code-reviewer",
       "file": "library/code-reviewer.md",
       "role": "TypeScript/security/arch code review",
-      "model": "sonnet"
+      "model": "session"
     },
     {
       "id": "test-writer",
       "file": "library/test-writer.md",
       "role": "Vitest unit + integration test generation",
-      "model": "sonnet"
+      "model": "session"
     },
     {
       "id": "security-reviewer",
       "file": "library/security-reviewer.md",
       "role": "Injection / auth / CORS / secrets audit",
-      "model": "sonnet"
+      "model": "session"
     },
     {
       "id": "architect",
       "file": "library/architect.md",
       "role": "Trade-off analysis + system design",
-      "model": "sonnet"
+      "model": "session"
     },
     {
       "id": "qa-tester",
       "file": "library/qa-tester.md",
       "role": "User-perspective E2E QA + bug reports",
-      "model": "sonnet"
+      "model": "session"
     }
   ],
   "skills": [
     {
       "id": "persona-validate",
-      "file": ".claude/skills/persona-validate/SKILL.md",
+      "file": "skills/persona-validate/SKILL.md",
       "trigger": "validate persona|validate agent|check persona"
     },
     {
       "id": "persona-scaffold",
-      "file": ".claude/skills/persona-scaffold/SKILL.md",
+      "file": "skills/persona-scaffold/SKILL.md",
       "trigger": "scaffold persona|create persona|new persona"
+    },
+    {
+      "id": "persona-cast",
+      "file": "skills/persona-cast/SKILL.md",
+      "trigger": "cast persona|install persona|which sub-agent|trial persona"
     }
   ],
   "tools": [

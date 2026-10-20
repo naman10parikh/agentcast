@@ -2,11 +2,22 @@
   "hooks": {
     "PostToolUse": [
       {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/hooks/persona-guard.mjs\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/agentcast/observability/run-log.mjs \"PostToolUse:Bash\" \"$CLAUDE_TOOL_INPUT_COMMAND\" 2>/dev/null || true"
+            "command": "node \"$CLAUDE_PROJECT_DIR/observability/run-log.mjs\" \"PostToolUse:Bash\" || true",
+            "timeout": 5
           }
         ]
       }
@@ -17,7 +28,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/agentcast/observability/run-log.mjs \"PreToolUse:Write\" \"$CLAUDE_TOOL_INPUT_FILE_PATH\" 2>/dev/null || true"
+            "command": "node \"$CLAUDE_PROJECT_DIR/observability/run-log.mjs\" \"PreToolUse:Write\" || true",
+            "timeout": 5
           }
         ]
       }
@@ -26,10 +38,11 @@
   "permissions": {
     "allow": [
       "Bash(node *)",
-      "Bash(node ~/agentcast/validator/validate.mjs *)",
-      "Bash(node ~/agentcast/eval/eval.mjs *)",
-      "Bash(node ~/agentcast/dispatch/dispatch.mjs *)",
-      "Bash(node ~/agentcast/observability/run-log.mjs *)"
+      "Bash(node validator/validate.mjs *)",
+      "Bash(node eval/eval.mjs *)",
+      "Bash(node dispatch/dispatch.mjs *)",
+      "Bash(node observability/run-log.mjs *)",
+      "Bash(node bin/agentcast.mjs *)"
     ]
   }
 }

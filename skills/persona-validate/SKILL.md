@@ -1,8 +1,6 @@
 ---
 name: persona-validate
-trigger: "validate persona|validate agent|check persona|audit personas|validate .claude/agents"
-model: haiku
-effort: low
+description: Validate and score sub-agent persona files against what Claude Code reads today (name and description, the tools allowlist rather than allowed-tools, valid model and permission values, the .claude/agents/ path). Use before committing a persona, after editing frontmatter, or as a pre-merge check for any repository with a .claude/agents/ folder.
 ---
 
 # Skill: persona-validate
@@ -20,21 +18,21 @@ Validate one or more `.claude/agents/` persona files using the agentcast validat
 1. **Locate files** — determine whether target is `--library`, `--dir <path>`, or `--file <path>`
 2. **Run validator**
    ```bash
-   node ~/agentcast/validator/validate.mjs --library
+   npx -y -p github:naman10parikh/agentcast agentcast validate --library
    # or
-   node ~/agentcast/validator/validate.mjs --dir ./.claude/agents
+   npx -y -p github:naman10parikh/agentcast agentcast validate --dir ./.claude/agents
    # or
-   node ~/agentcast/validator/validate.mjs --file ./.claude/agents/<name>.md
+   npx -y -p github:naman10parikh/agentcast agentcast validate --file ./.claude/agents/<name>.md
    ```
 3. **Run eval** (score must be ≥7/10)
    ```bash
-   node ~/agentcast/eval/eval.mjs --library
+   npx -y -p github:naman10parikh/agentcast agentcast score --library
    # or same --dir / --file variants
    ```
 4. **Report results** — pass/fail per file, any errors, any scores below threshold
-5. **If failures** — list exact fix for each: missing frontmatter key, wrong model, no output format, etc.
+5. **If failures** — list exact fix for each: missing frontmatter key, `allowed-tools` instead of `tools`, an invalid model or permission value, no output format.
 
-## Output Format
+## Output
 
 ```
 ## persona-validate: {target}

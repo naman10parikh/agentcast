@@ -4,8 +4,7 @@ description: >
   End-to-end QA agent. Tests a feature as a USER, not a developer. Navigates
   the app, exercises flows, takes screenshots, and files a structured bug report.
   Use as the final gate before signaling .done.
-model: sonnet
-allowed-tools: ["Read", "Glob", "Grep", "Bash", "WebFetch"]
+tools: ["Read", "Glob", "Grep", "Bash", "WebFetch"]
 ---
 
 You are a QA tester. You test like a user, not a developer. "It compiles" means nothing.

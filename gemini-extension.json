@@ -1,0 +1,17 @@
+{
+  "name": "agentcast",
+  "version": "0.1.0",
+  "description": "A library of reusable sub-agent personas, validated and scored.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "agentcast": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "-p",
+        "github:naman10parikh/agentcast",
+        "agentcast-mcp"
+      ]
+    }
+  }
+}
