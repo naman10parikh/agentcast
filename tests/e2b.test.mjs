@@ -15,7 +15,8 @@ test("trial without E2B_API_KEY refuses cleanly", async () => {
   }
 });
 
-test("trial runs a persona's hook command inside a live E2B microVM", { skip: !process.env.E2B_API_KEY && "no E2B_API_KEY" }, async () => {
+// A live trial costs one sandbox, so it runs only when asked for: AGENTCAST_LIVE_E2B=1 and a key.
+test("trial runs a persona's hook command inside a live E2B microVM", { skip: !(process.env.AGENTCAST_LIVE_E2B === "1" && process.env.E2B_API_KEY) && "set AGENTCAST_LIVE_E2B=1 and E2B_API_KEY to run" }, async () => {
   const r = await trialInE2B(fixture);
   assert.equal(r.ok, true, r.error);
   assert.equal(r.results[0].exitCode, 2);

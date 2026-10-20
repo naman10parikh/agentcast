@@ -37,7 +37,7 @@ The validator hard-fails on it. Enforce at all times.
   with a problem is reported back at once; two more hooks append to `observability/runs.jsonl`.
 - **MCP:** the root `.mcp.json` starts the published server through `npx` (safe for anyone who installs the
   plugin). To use this checkout's own server instead, run `claude --mcp-config .mcp.dev.json`.
-- **E2B:** `agentcast trial --sandbox=e2b` reads `E2B_API_KEY` from the environment. Never print it.
+- **E2B:** `agentcast trial --sandbox=e2b` reads `E2B_API_KEY` from the environment. Never print it. `npm test` skips the live trial unless `AGENTCAST_LIVE_E2B=1` is also set, since each run boots a paid sandbox.
 
 ## No External Dependencies
 
