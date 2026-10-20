@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "AgentCast: A library of reusable sub-agent personas, validated and scored."
+type: software
+authors:
+  - family-names: Parikh
+    given-names: Naman
+repository-code: "https://github.com/naman10parikh/agentcast"
+license: MIT
+version: "0.1.0"
+abstract: "A library of reusable sub-agent personas, validated and scored."
+keywords: ["agent-native", "sub-agents", "claude-code-subagents", "agent-personas"]
