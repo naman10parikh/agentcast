@@ -20,7 +20,7 @@ AgentCast is an agent employee, a packaged specialist agent with its own skills,
 
 _AgentCast is part of an agent-native play for agent-native systems that can eventually be recursively self-improving and evolving, operated by agent employees._
 
-<p align="center"><img alt="AgentCast: on the command line" src="assets/terminal.svg" width="880"></p>
+<p align="center"><img alt="AgentCast: a real task, run offline" src="assets/demo.svg" width="880"></p>
 <!-- fleet:header:end -->
 
 > Cast the right agent for every role.
